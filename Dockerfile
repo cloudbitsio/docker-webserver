@@ -23,7 +23,8 @@ RUN add-apt-repository ppa:ondrej/nginx \
     nginx \
     php7.4-dom php7.4-bcmath php7.4-bz2 php7.4-cli php7.4-common php7.4-curl php7.4-zip \
     php7.4-opcache php7.4-cgi php7.4-dev php7.4-fpm php7.4-gd php7.4-gmp php7.4-imap php7.4-intl \
-    php7.4-json php7.4-ldap php7.4-mbstring php7.4-mysql php7.4-xml php7.4-simplexml php7.4-imagick
+    php7.4-json php7.4-ldap php7.4-mbstring php7.4-mysql php7.4-xml php7.4-simplexml php7.4-imagick \
+    mysql-client
 
 ## Install Composer
 RUN curl https://getcomposer.org/installer > composer-setup.php \
