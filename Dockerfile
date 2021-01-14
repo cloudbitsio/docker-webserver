@@ -7,7 +7,7 @@ RUN apt-get clean && apt-get -y update
 RUN ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime \
     && DEBIAN_FRONTEND=noninteractive apt-get install  --no-install-recommends --no-install-suggests --yes --quiet \
         software-properties-common apt-transport-https ca-certificates \
-        sudo wget bash gnupg2 git curl nano locales tzdata \
+        sudo wget bash gnupg2 git curl nano zip unzip locales tzdata \
     && dpkg-reconfigure --frontend noninteractive tzdata \
     && locale-gen en_US.UTF-8
 ENV LANG C.UTF-8 \
