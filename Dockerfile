@@ -37,19 +37,15 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
     && chmod +x wp-cli.phar \
     && mv wp-cli.phar /usr/local/bin/wp
 
-## Configure the php.ini
-RUN sed -i "s/;date.timezone =.*/date.timezone = UTC/" /etc/php/7.4/cli/php.ini && \
-    sed -i "s/;date.timezone =.*/date.timezone = UTC/" /etc/php/7.4/fpm/php.ini && \
-    sed -i "s/display_errors = Off/display_errors = On/" /etc/php/7.4/fpm/php.ini && \
-    sed -i "s/upload_max_filesize = .*/upload_max_filesize = 12M/" /etc/php/7.4/fpm/php.ini && \
-    sed -i "s/post_max_size = .*/post_max_size = 12M/" /etc/php/7.4/fpm/php.ini && \
-    sed -i "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php/7.4/fpm/php.ini && \
-    # FPM
-    sed -i -e "s/pid =.*/pid = \/var\/run\/php\/php7.4-fpm.pid/" /etc/php/7.4/fpm/php-fpm.conf && \
-    sed -i -e "s/error_log =.*/error_log = \/proc\/self\/fd\/2/" /etc/php/7.4/fpm/php-fpm.conf && \
-    sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/7.4/fpm/php-fpm.conf && \
-    sed -i "s/listen = .*/listen = \/var\/run\/php\/php7.4-fpm.sock/" /etc/php/7.4/fpm/pool.d/www.conf && \
-    sed -i "s/;catch_workers_output = .*/catch_workers_output = yes/" /etc/php/7.4/fpm/pool.d/www.conf
+# ## Configure the php-fpm.conf and fpm/php.ini
+RUN sed -i -e "s/pid =.*/pid = \/var\/run\/php\/php7.4-fpm.pid/" /etc/php/7.4/fpm/php-fpm.conf && \
+    sed -i "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php/7.4/fpm/php.ini
+
+## Override the default PHP configs
+COPY ./php/cli.ini /etc/php/7.4/mods-available/custom-cli.ini
+COPY ./php/fpm.ini /etc/php/7.4/mods-available/custom-fpm.ini
+RUN ln -s /etc/php/7.4/mods-available/custom-cli.ini /etc/php/7.4/fpm/conf.d/30-cli.ini
+RUN ln -s /etc/php/7.4/mods-available/custom-fpm.ini /etc/php/7.4/fpm/conf.d/30-fpm.ini
 
 # Clean the package manager caches
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
@@ -58,6 +54,6 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && ln -sf /dev/stderr /var/log/nginx/error.log
 
 VOLUME ["/var/cache/nginx"]
-EXPOSE 80 443 9000
+EXPOSE 80 443
 
 CMD service php7.4-fpm start && nginx -g "daemon off;"
