@@ -16,7 +16,7 @@ ENV LANG C.UTF-8 \
 RUN /usr/sbin/update-locale
 
 # Get the latest nginx from repo and install
-RUN add-apt-repository ppa:ondrej/nginx \
+RUN add-apt-repository ppa:rtcamp/nginx \
     && add-apt-repository -y ppa:ondrej/php \
     && apt-get update \
     && apt-get install --no-install-recommends --no-install-suggests --yes --quiet \
