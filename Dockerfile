@@ -1,12 +1,14 @@
 FROM ubuntu:20.04
 
 # Update Lists
-RUN apt-get clean && apt-get -y update 
+RUN sed -i 's|http://us.|http://|g' /etc/apt/sources.list && \
+    apt-get clean && \
+    apt-get -y update 
 
 # Set timezone, locale and install essentials
 RUN ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime \
     && DEBIAN_FRONTEND=noninteractive apt-get install  --no-install-recommends --no-install-suggests --yes --quiet \
-        software-properties-common apt-transport-https ca-certificates \
+        software-properties-common apt-transport-https ca-certificates build-essential libpcre3 libpcre3-dev \
         sudo wget bash gnupg2 git curl nano zip unzip locales tzdata \
     && dpkg-reconfigure --frontend noninteractive tzdata \
     && locale-gen en_US.UTF-8
@@ -15,12 +17,35 @@ ENV LANG C.UTF-8 \
     LC_ALL C.UTF-8
 RUN /usr/sbin/update-locale
 
-# Get the latest nginx from repo and install
-RUN add-apt-repository ppa:rtcamp/nginx \
-    && add-apt-repository -y ppa:ondrej/php \
+RUN add-apt-repository ppa:ondrej/nginx \
+   && apt-get install --no-install-recommends --no-install-suggests --yes --quiet \
+   nginx
+
+# # Get NAXSI
+# RUN export NAXSI_VER=1.3 && \
+#     wget https://github.com/nbs-system/naxsi/archive/$NAXSI_VER.tar.gz -O naxsi_$NAXSI_VER.tar.gz && \
+#     tar vxf naxsi_$NAXSI_VER.tar.gz
+
+# # Get Cache PURGE
+# RUN export PURGE_VER=2.3.1 && \
+#     wget https://github.com/torden/ngx_cache_purge/archive/v$PURGE_VER.tar.gz -O purge_$PURGE_VER.tar.gz && \
+#     tar vxf purge_$PURGE_VER.tar.gz
+
+# # Get Nginx and make
+# RUN export NGINX_VER=1.18.0 && \
+#     wget https://nginx.org/download/nginx-$NGINX_VER.tar.gz -O nginx_$NGINX_VER.tar.gz && \
+#     tar vxf nginx_$NGINX_VER.tar.gz && \
+#     # Build NAXSI and PURGE as a dynamic extension
+#     cd nginx-$NGINX_VER && \
+#     ./configure && \
+#         --add-dynamic-module=../naxsi_$NAXSI_VER/naxsi_src/ && \
+#         --add-dynamic-module=../purge_$PURGE_VER/ --with-compat && \
+#     make modules && make 
+
+# Get the latest PHP from repo and install
+RUN add-apt-repository -y ppa:ondrej/php \
     && apt-get update \
     && apt-get install --no-install-recommends --no-install-suggests --yes --quiet \
-    nginx \
     php7.4-dom php7.4-bcmath php7.4-bz2 php7.4-cli php7.4-common php7.4-curl php7.4-zip php7.4-redis \
     php7.4-opcache php7.4-cgi php7.4-dev php7.4-fpm php7.4-gd php7.4-gmp php7.4-imap php7.4-intl \
     php7.4-json php7.4-ldap php7.4-mbstring php7.4-mysql php7.4-xml php7.4-simplexml php7.4-imagick \
